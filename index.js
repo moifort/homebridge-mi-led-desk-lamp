@@ -28,18 +28,15 @@ class MiLedDesklamp {
         // Setup services
         this.switch = new Service.Switch(this.name)
         this.switch.getCharacteristic(Characteristic.On)
-            .on('get', this.getState)
-            .on('set', this.setState)
+            .on('get', this.getState.bind(this))
+            .on('set', this.setState.bind(this))
     }
 
     async setup() {
-
-
-        // Setup services
         this.switch = new Service.Switch(this.name)
         this.switch.getCharacteristic(Characteristic.On)
-            .on('get', this.getState)
-            .on('set', this.setState)
+            .on('get', this.getState.bind(this))
+            .on('set', this.setState.bind(this))
     }
 
     async getState(callback) {
