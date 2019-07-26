@@ -30,19 +30,31 @@ class MiLedDesklamp {
         this.switch.getCharacteristic(Characteristic.On)
             .on('get', this.getState.bind(this))
             .on('set', this.setState.bind(this))
+
+        this.listenLampState().catch(error => this.log.error(error))
     }
 
-    async setup() {
-        this.switch = new Service.Switch(this.name)
-        this.switch.getCharacteristic(Characteristic.On)
-            .on('get', this.getState.bind(this))
-            .on('set', this.setState.bind(this))
+    async getLamp() {
+        if (this.lampDevice) return this.lampDevice
+        this.log('Connect to device')
+        try {
+            this.lampDevice = await miio.device({address: this.ip, token: this.token})
+        } catch (e) {
+            this.lampDevice = undefined
+            this.log.error('Device not connected', e)
+        }
+        return this.lampDevice
+    }
+
+    async listenLampState(){
+        const device = await this.getLamp()
+        device.on('powerChanged', isOn => this.switch.getCharacteristic(Characteristic.On).updateValue(isOn))
     }
 
     async getState(callback) {
         this.log('Get state...')
         try {
-            const device = await miio.device({address: this.ip, token: this.token})
+            const device = await this.getLamp()
             const power = await device.power()
             callback(null, power)
         } catch (e) {
@@ -54,7 +66,7 @@ class MiLedDesklamp {
     async setState(state, callback) {
         this.log('Set state to', state)
         try {
-            const device = await miio.device({address: this.ip, token: this.token})
+            const device = await this.getLamp()
             await device.power(state)
             callback(null)
         } catch (e) {
