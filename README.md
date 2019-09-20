@@ -20,11 +20,22 @@ npm install -g homebridge-mi-led-desk-lamp
 
 ## Example Configuration
 
-```
+```json
 {
+  "bridge": {
+    "name": "Homebridge",
+    "username": "Thibaut",
+    "port": 51826,
+    "pin": "111-11-111"
+  },
+  "accessories": [
+    {
     "accessory": "mi-led-desk-lamp",
     "name": "My desk lamp",
     "ip": "192.168.0.132",
-    "token": "6591d0ad2003dd32da75815f5d7def26"
+    "token": "6591d0ad2003ddd2da75815f5d7def26"
+    }
+  ],
+  "platforms": []
 }
 ``` 
