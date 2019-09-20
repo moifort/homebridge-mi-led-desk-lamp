@@ -26,10 +26,18 @@ class MiLedDesklamp {
         this.token = config['token']
 
         // Setup services
-        this.switch = new Service.Switch(this.name)
-        this.switch.getCharacteristic(Characteristic.On)
+        this.lamp = new Service.Lightbulb(this.name)
+        this.lamp.getCharacteristic(Characteristic.On)
             .on('get', this.getState.bind(this))
             .on('set', this.setState.bind(this))
+
+        this.lamp.getCharacteristic(Characteristic.Brightness)
+            .on('get', this.getBrightness.bind(this))
+            .on('set', this.setBrightness.bind(this))
+
+        this.lamp.getCharacteristic(Characteristic.ColorTemperature)
+            .on('get', this.getColorTemperature.bind(this))
+            .on('set', this.setColorTemperature.bind(this))
 
         this.listenLampState().catch(error => this.log.error(error))
     }
@@ -48,7 +56,9 @@ class MiLedDesklamp {
 
     async listenLampState(){
         const device = await this.getLamp()
-        device.on('powerChanged', isOn => this.switch.getCharacteristic(Characteristic.On).updateValue(isOn))
+        device.on('powerChanged', isOn => this.lamp.getCharacteristic(Characteristic.On).updateValue(isOn))
+        device.on('colorChanged', color => this.lamp.getCharacteristic(Characteristic.ColorTemperature).updateValue(Math.round(1000000 / color.values[0])))
+        device.on('brightnessChanged', brightness => this.lamp.getCharacteristic(Characteristic.Brightness).updateValue(brightness))
     }
 
     async getState(callback) {
@@ -75,7 +85,58 @@ class MiLedDesklamp {
         }
     }
 
+    async getBrightness(callback) {
+        this.log('Get brightness...')
+        try {
+            const device = await this.getLamp()
+            const brightness = await device.brightness()
+            callback(null, brightness)
+        } catch (e) {
+            this.log.error('Error getting brightness', e)
+            callback(e)
+        }
+    }
+	async setBrightness(state, callback) {
+		this.log('Set brightness to', state)
+		try {
+			const device = await this.getLamp()
+			await device.brightness('' + state)
+			callback(null)
+		} catch (e) {
+			this.log.error('Error setting brightness', e)
+			callback(e)
+		}
+    }
+    
+    async getColorTemperature(callback) {
+        this.log('Get color...')
+        try {
+            const device = await this.getLamp()
+            const color = await device.color()
+            const miredColor = Math.round(1000000 / color.values[0])
+            callback(null, miredColor)
+        } catch (e) {
+            this.log.error('Error getting brightness', e)
+            callback(e)
+        }
+    }
+	async setColorTemperature(miredValue, callback) {
+        this.log('Set color to', miredValue)
+        let kelvinValue = Math.round(1000000 / miredValue)
+
+        kelvinValue = Math.max(Math.min(kelvinValue, 6500), 2700);
+
+		try {
+            const device = await this.getLamp()
+            await device.call("set_ct_abx", [kelvinValue, 'smooth', 1000])
+			callback(null)
+		} catch (e) {
+			this.log.error('Error setting color', e)
+			callback(e)
+		}
+	}
+
     getServices() {
-        return [this.switch]
+        return [this.lamp]
     }
 }
