@@ -35,6 +35,10 @@ class MiLedDesklamp {
             .on('get', this.getBrightness.bind(this))
             .on('set', this.setBrightness.bind(this));
 
+        this.lamp.getCharacteristic(Characteristic.ColorTemperature)
+            .on('get', this.getColorTemperature.bind(this))
+            .on('set', this.setColorTemperature.bind(this));
+
         this.listenLampState().catch(error => this.log.error(error));
     }
 
@@ -81,7 +85,7 @@ class MiLedDesklamp {
     }
 
     async getBrightness(callback) {
-        this.log('Get Brightness...');
+        this.log('Get brightness...');
         try {
             const device = await this.getLamp();
             const brightness = await device.brightness();
@@ -99,6 +103,36 @@ class MiLedDesklamp {
 			callback(null);
 		} catch (e) {
 			this.log.error('Error setting brightness', e);
+			callback(e);
+		}
+    }
+    
+    async getColorTemperature(callback) {
+        this.log('Get color...');
+        try {
+            const device = await this.getLamp();
+            const color = await device.color();
+            callback(null, color);
+        } catch (e) {
+            this.log.error('Error getting brightness', e);
+            callback(e);
+        }
+    }
+	async setColorTemperature(value, callback) {
+        this.log('Set color to', value);
+        value = Math.round(1000000 / value);
+        if (value > 6500) {
+            value = 6500;
+        }
+        if (value < 2700) {
+            value = 2700;
+        }
+		try {
+            const device = await this.getLamp();
+            await device.call("set_ct_abx", [value, 'smooth', 1000]);
+			callback(null);
+		} catch (e) {
+			this.log.error('Error setting color', e);
 			callback(e);
 		}
 	}
