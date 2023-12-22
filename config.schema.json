@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "homebridge-mi-led-desk-lamp",
+  "pluginAlias": "mi-led-desk-lamp",
   "pluginType": "accessory",
   "singular": true,
   "footerDisplay": "Links might be helpful:\n\n[Obtain Mi Home device token](https://github.com/jghaanstra/com.xiaomi-miio/blob/master/docs/obtain_token.md)\n\n[Get Device Token Without Resetting on Non-Jailbroken iOS Devices](https://github.com/mediter/miio/blob/master/docs/ios-token-without-reset.md)",
