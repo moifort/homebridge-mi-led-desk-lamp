@@ -1,5 +1,7 @@
 [![npm version](https://badge.fury.io/js/homebridge-mi-led-desk-lamp.svg)](https://badge.fury.io/js/homebridge-mi-led-desk-lamp)
-# homebridge-mi-led-desk-lamp
+# [DEPRECATED] homebridge-mi-led-desk-lamp
+
+> Use this plugin https://github.com/merdok/homebridge-miot
 
 This is a [Homebridge](https://github.com/nfarina/homebridge) plugin for exposing the Xiaomi Led Desk Lamp to HomeKit
 
